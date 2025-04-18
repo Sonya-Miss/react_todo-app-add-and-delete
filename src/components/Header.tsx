@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Todo } from '../types/Todo';
-import { USER_ID_G } from '../api/todos';
+import { handleAddTodoApi, USER_ID_G } from '../api/todos';
 
 interface InputFocusProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -23,25 +23,25 @@ export const Header: React.FC<InputFocusProps> = ({
   const allCompleted = todos.every(todo => todo.completed);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
-  const addTodo = async (userId: number, title: string) => {
-    const response = await fetch('https://your-api.com/todos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId,
-        title,
-        completed: false,
-      }),
-    });
+  // const addTodo = async (userId: number, title: string) => {
+  //   const response = await fetch('https://your-api.com/todos', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       userId,
+  //       title,
+  //       completed: false,
+  //     }),
+  //   });
 
-    if (!response.ok) {
-      throw new Error('Failed to add todo');
-    }
+  //   if (!response.ok) {
+  //     throw new Error('Failed to add todo');
+  //   }
 
-    return response.json();
-  };
+  //   return response.json();
+  // };
 
   const handleAddTodo = async () => {
     const trimmedTask = task.trim();
@@ -64,7 +64,7 @@ export const Header: React.FC<InputFocusProps> = ({
       setLoading(true);
       setTempTodo(fakeTodo);
 
-      const newTodo = await addTodo(USER_ID_G, trimmedTask);
+      const newTodo = await handleAddTodoApi(trimmedTask);
 
       setTodos(prev => [...prev, newTodo]);
       setError('');

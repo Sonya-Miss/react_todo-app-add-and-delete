@@ -4,6 +4,7 @@ import React from 'react';
 import { Todo } from '../types/Todo';
 import { TodoLoader } from './TodoLoader';
 import { TodoTitle } from './TodoTitle';
+import classNames from 'classnames';
 
 interface TodoListProps {
   todos: Todo[];
@@ -22,22 +23,6 @@ export const TodoList: React.FC<TodoListProps> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {loading && <div className="modal-overlay is-active">Loading...</div>}
-      {tempTodo && (
-        <div className="todo" data-cy="Todo">
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-              disabled
-              checked={false}
-            />
-          </label>
-          <span className="todo__title">{tempTodo.title}</span>
-          <TodoLoader />
-        </div>
-      )}
-
       {todos.map(todo => (
         <div
           key={todo.id}
@@ -54,9 +39,32 @@ export const TodoList: React.FC<TodoListProps> = ({
             />
           </label>
           <TodoTitle todo={todo} onDelete={onDelete} />
-          <TodoLoader />
+          <div
+            data-cy="TodoLoader"
+            className={classNames('modal overlay', { 'is-active': loading })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </div>
       ))}
+
+      {tempTodo && (
+        <div className="todo" data-cy="Todo">
+          <label className="todo__status-label">
+            <input
+              type="checkbox"
+              className="todo__status"
+              disabled
+              checked={false}
+            />
+          </label>
+          <span className="todo__title" data-cy="TodoTitle">
+            {tempTodo.title}
+          </span>
+          <TodoLoader />
+        </div>
+      )}
     </section>
   );
 };
