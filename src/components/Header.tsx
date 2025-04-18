@@ -68,10 +68,10 @@ export const Header: React.FC<InputFocusProps> = ({
 
       setTodos(prev => [...prev, newTodo]);
       setError('');
+      setTask('');
     } catch (err) {
       setError((err as Error).message || 'Can not add task');
     } finally {
-      setTask('');
       setIsInputDisabled(true);
       setLoading(false);
       inputRef.current?.focus();
