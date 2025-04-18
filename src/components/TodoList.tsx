@@ -9,15 +9,35 @@ interface TodoListProps {
   todos: Todo[];
   onTodoStatusChange: (id: number) => void;
   onDelete: (id: number) => void;
+  tempTodo: Todo | null;
+  loading: boolean;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
   todos,
   onTodoStatusChange,
   onDelete,
+  tempTodo,
+  loading,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
+      {loading && <div className="modal-overlay is-active">Loading...</div>}
+      {tempTodo && (
+        <div className="todo" data-cy="Todo">
+          <label className="todo__status-label">
+            <input
+              type="checkbox"
+              className="todo__status"
+              disabled
+              checked={false}
+            />
+          </label>
+          <span className="todo__title">{tempTodo.title}</span>
+          <TodoLoader />
+        </div>
+      )}
+
       {todos.map(todo => (
         <div
           key={todo.id}

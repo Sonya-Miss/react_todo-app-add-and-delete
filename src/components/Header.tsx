@@ -8,6 +8,7 @@ interface InputFocusProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setError: React.Dispatch<React.SetStateAction<string>>;
   todos: Todo[];
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
 }
 
 export const Header: React.FC<InputFocusProps> = ({
@@ -16,10 +17,11 @@ export const Header: React.FC<InputFocusProps> = ({
   setLoading,
   setError,
   todos,
+  setTempTodo,
 }) => {
   const [task, setTask] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const allCompleted = todos.every(todo => todo.completed);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const addTodo = async (userId: number, title: string) => {
     const response = await fetch('https://your-api.com/todos', {
@@ -42,23 +44,38 @@ export const Header: React.FC<InputFocusProps> = ({
   };
 
   const handleAddTodo = async () => {
+    const trimmedTask = task.trim();
+
     if (!task.trim()) {
-      setErrorMessage('Title should not be empty');
+      setError('Title should not be empty');
 
       return;
     }
 
+    const fakeTodo: Todo = {
+      id: 0,
+      userId: USER_ID_G,
+      title: trimmedTask,
+      completed: false,
+    };
+
     try {
+      setIsInputDisabled(true);
       setLoading(true);
-      const newTodo = await addTodo(USER_ID_G, task);
+      setTempTodo(fakeTodo);
+
+      const newTodo = await addTodo(USER_ID_G, trimmedTask);
 
       setTodos(prev => [...prev, newTodo]);
-      setTask('');
-      setErrorMessage('');
+      setError('');
     } catch (err) {
       setError((err as Error).message || 'Can not add task');
     } finally {
+      setTask('');
+      setIsInputDisabled(true);
       setLoading(false);
+      inputRef.current?.focus();
+      setTempTodo(null);
     }
   };
 
@@ -86,18 +103,11 @@ export const Header: React.FC<InputFocusProps> = ({
           onChange={e => setTask(e.target.value)}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
+          disabled={isInputDisabled}
         />
       </form>
 
       {/* Display error message if task title is empty */}
-      {errorMessage && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          {errorMessage}
-        </div>
-      )}
     </header>
   );
 };

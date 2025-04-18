@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [filter, setFilter] = useState<FilterType>(FilterType.All);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -66,26 +67,6 @@ export const App: React.FC = () => {
     setError('');
   };
 
-  // const addTodo = async (userId: number, title: string) => {
-  //   const response = await fetch('https://your-api.com/todos', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       userId,
-  //       title,
-  //       completed: false,
-  //     }),
-  //   });
-
-  //   if (!response.ok) {
-  //     throw new Error('Failed to add todo');
-  //   }
-
-  //   return response.json();
-  // };
-
   const filteredTodos = todos.filter(todo => {
     switch (filter) {
       case FilterType.Active:
@@ -122,11 +103,14 @@ export const App: React.FC = () => {
           setLoading={setLoading}
           setError={setError}
           todos={todos}
+          setTempTodo={setTempTodo}
         />
         <TodoList
           todos={filteredTodos}
           onTodoStatusChange={handleTodoStatusChange}
           onDelete={handleDelete}
+          tempTodo={tempTodo}
+          loading={loading}
         />
         {todos.length > 0 && (
           <Footer todos={todos} filter={filter} setFilter={setFilter} />
