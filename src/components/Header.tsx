@@ -72,9 +72,11 @@ export const Header: React.FC<InputFocusProps> = ({
     } catch (err) {
       setError((err as Error).message || 'Can not add task');
     } finally {
-      setIsInputDisabled(true);
+      setIsInputDisabled(false);
       setLoading(false);
-      inputRef.current?.focus();
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
       setTempTodo(null);
     }
   };

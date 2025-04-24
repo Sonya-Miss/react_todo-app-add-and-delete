@@ -2,9 +2,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import { Todo } from '../types/Todo';
-import { TodoLoader } from './TodoLoader';
-import { TodoTitle } from './TodoTitle';
-import classNames from 'classnames';
+// import { TodoLoader } from './TodoLoader';
+// import { TodoTitle } from './TodoTitle';
+// import classNames from 'classnames';
+import { TodoItem } from './TodoItem';
 
 interface TodoListProps {
   todos: Todo[];
@@ -19,51 +20,27 @@ export const TodoList: React.FC<TodoListProps> = ({
   onTodoStatusChange,
   onDelete,
   tempTodo,
-  loading,
+  // loading,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
-        <div
+        <TodoItem
           key={todo.id}
-          className={`todo ${todo.completed ? 'completed' : ''}`}
-          data-cy="Todo"
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={todo.completed}
-              onChange={() => onTodoStatusChange(todo.id)}
-            />
-          </label>
-          <TodoTitle todo={todo} onDelete={onDelete} />
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal overlay', { 'is-active': loading })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+          todo={todo}
+          onDelete={onDelete}
+          onTodoStatusChange={onTodoStatusChange}
+        />
       ))}
 
       {tempTodo && (
-        <div className="todo" data-cy="Todo">
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-              disabled
-              checked={false}
-            />
-          </label>
-          <span className="todo__title" data-cy="TodoTitle">
-            {tempTodo.title}
-          </span>
-          <TodoLoader />
-        </div>
+        <TodoItem
+          key={0}
+          todo={tempTodo}
+          onDelete={() => {}} // або null-функція, якщо не треба
+          onTodoStatusChange={() => {}}
+          isLoading={true}
+        />
       )}
     </section>
   );

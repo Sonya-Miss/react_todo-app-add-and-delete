@@ -94,7 +94,7 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      {loading && <div>Loading...</div>}
+      {/* {loading && <div>Loading...</div>} */}
 
       <div className="todoapp__content">
         <Header
