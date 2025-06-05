@@ -15,3 +15,7 @@ export const handleAddTodoApi = (title: string) => {
   });
 };
 // Add more methods here
+
+export const deleteTodo = (id: number) => {
+  return client.delete(`todos/${id}`);
+};

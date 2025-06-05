@@ -2,9 +2,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import { Todo } from '../types/Todo';
-// import { TodoLoader } from './TodoLoader';
-// import { TodoTitle } from './TodoTitle';
-// import classNames from 'classnames';
 import { TodoItem } from './TodoItem';
 
 interface TodoListProps {
@@ -13,6 +10,7 @@ interface TodoListProps {
   onDelete: (id: number) => void;
   tempTodo: Todo | null;
   loading: boolean;
+  deletingTodoIds: number[];
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -20,7 +18,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   onTodoStatusChange,
   onDelete,
   tempTodo,
-  // loading,
+  deletingTodoIds,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -30,6 +28,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           todo={todo}
           onDelete={onDelete}
           onTodoStatusChange={onTodoStatusChange}
+          isLoading={deletingTodoIds.includes(todo.id)}
         />
       ))}
 
@@ -37,7 +36,7 @@ export const TodoList: React.FC<TodoListProps> = ({
         <TodoItem
           key={0}
           todo={tempTodo}
-          onDelete={() => {}} // або null-функція, якщо не треба
+          onDelete={() => {}}
           onTodoStatusChange={() => {}}
           isLoading={true}
         />

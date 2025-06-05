@@ -9,6 +9,8 @@ interface InputFocusProps {
   setError: React.Dispatch<React.SetStateAction<string>>;
   todos: Todo[];
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
+  isInputDisabled: boolean;
+  setIsInputDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Header: React.FC<InputFocusProps> = ({
@@ -22,26 +24,6 @@ export const Header: React.FC<InputFocusProps> = ({
   const [task, setTask] = useState('');
   const allCompleted = todos.every(todo => todo.completed);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-
-  // const addTodo = async (userId: number, title: string) => {
-  //   const response = await fetch('https://your-api.com/todos', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       userId,
-  //       title,
-  //       completed: false,
-  //     }),
-  //   });
-
-  //   if (!response.ok) {
-  //     throw new Error('Failed to add todo');
-  //   }
-
-  //   return response.json();
-  // };
 
   const handleAddTodo = async () => {
     const trimmedTask = task.trim();
@@ -70,7 +52,7 @@ export const Header: React.FC<InputFocusProps> = ({
       setError('');
       setTask('');
     } catch (err) {
-      setError((err as Error).message || 'Can not add task');
+      setError((err as Error).message || 'Unable to add a todo');
     } finally {
       setIsInputDisabled(false);
       setLoading(false);

@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect, useRef } from 'react';
 import { UserWarning } from './UserWarning';
-import { getTodos, USER_ID_G } from './api/todos';
+import { deleteTodo, getTodos, USER_ID_G } from './api/todos';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
@@ -22,10 +22,14 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>(FilterType.All);
   const inputRef = useRef<HTMLInputElement>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (inputRef.current && !isInputDisabled) {
+      inputRef.current.focus();
+    }
+  }, [isInputDisabled, todos]);
 
   const loadTodos = async (userId: number) => {
     try {
@@ -86,15 +90,57 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleDelete = (id: number) => {
-    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+  setTimeout(() => {
+    if (inputRef.current && !isInputDisabled) {
+      inputRef.current.focus();
+    }
+  }, 50);
+
+  const handleDelete = async (id: number) => {
+    setDeletingTodoIds(prev => [...prev, id]);
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    try {
+      await deleteTodo(id);
+      setTodos(prev => prev.filter(todo => todo.id !== id));
+    } catch (err) {
+      setError('Unable to delete a todo');
+    } finally {
+      setDeletingTodoIds(prev => prev.filter(todoId => todoId !== id));
+    }
+
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+  };
+
+  const handleClearCompleted = async () => {
+    const completed = todos.filter(todo => todo.completed);
+
+    const results = await Promise.allSettled(
+      completed.map(todo => deleteTodo(todo.id)),
+    );
+
+    const successfullyDeleted = completed.filter(
+      (_, index) => results[index].status === 'fulfilled',
+    );
+
+    setTodos(prev =>
+      prev.filter(todo => !successfullyDeleted.some(td => td.id === todo.id)),
+    );
+
+    if (results.some(result => result.status === 'rejected')) {
+      setError('Unable to delete a todo');
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
+    }
   };
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
-      {/* {loading && <div>Loading...</div>} */}
 
       <div className="todoapp__content">
         <Header
@@ -104,6 +150,8 @@ export const App: React.FC = () => {
           setError={setError}
           todos={todos}
           setTempTodo={setTempTodo}
+          isInputDisabled={isInputDisabled}
+          setIsInputDisabled={setIsInputDisabled}
         />
         <TodoList
           todos={filteredTodos}
@@ -111,9 +159,16 @@ export const App: React.FC = () => {
           onDelete={handleDelete}
           tempTodo={tempTodo}
           loading={loading}
+          deletingTodoIds={deletingTodoIds}
         />
+
         {todos.length > 0 && (
-          <Footer todos={todos} filter={filter} setFilter={setFilter} />
+          <Footer
+            todos={todos}
+            filter={filter}
+            setFilter={setFilter}
+            onClearCompleted={handleClearCompleted}
+          />
         )}
       </div>
 

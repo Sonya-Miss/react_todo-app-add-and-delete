@@ -35,15 +35,13 @@ export const TodoItem: React.FC<Props> = ({
 
       <TodoTitle todo={todo} onDelete={onDelete} />
 
-      {isLoading && (
-        <div
-          data-cy="TodoLoader"
-          className={classNames('modal overlay', { 'is-active': isLoading })}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
+      <div
+        data-cy="TodoLoader"
+        className={classNames('modal overlay', { 'is-active': isLoading })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };
