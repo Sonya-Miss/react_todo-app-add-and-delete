@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { Todo } from '../types/Todo';
 import { handleAddTodoApi, USER_ID_G } from '../api/todos';
-
 interface InputFocusProps {
   inputRef: React.RefObject<HTMLInputElement>;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setError: React.Dispatch<React.SetStateAction<string>>;
+  setLoading: (value: boolean) => void;
+  setError: (value: string) => void;
   todos: Todo[];
-  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
-  isInputDisabled: boolean;
-  setIsInputDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  setTempTodo: (value: Todo | null) => void;
+  tempTodo: Todo | null;
 }
-
 export const Header: React.FC<InputFocusProps> = ({
   inputRef,
   setTodos,
@@ -20,11 +17,10 @@ export const Header: React.FC<InputFocusProps> = ({
   setError,
   todos,
   setTempTodo,
+  tempTodo,
 }) => {
   const [task, setTask] = useState('');
   const allCompleted = todos.every(todo => todo.completed);
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
-
   const handleAddTodo = async () => {
     const trimmedTask = task.trim();
 
@@ -42,10 +38,8 @@ export const Header: React.FC<InputFocusProps> = ({
     };
 
     try {
-      setIsInputDisabled(true);
       setLoading(true);
       setTempTodo(fakeTodo);
-
       const newTodo = await handleAddTodoApi(trimmedTask);
 
       setTodos(prev => [...prev, newTodo]);
@@ -54,7 +48,6 @@ export const Header: React.FC<InputFocusProps> = ({
     } catch (err) {
       setError((err as Error).message || 'Unable to add a todo');
     } finally {
-      setIsInputDisabled(false);
       setLoading(false);
       setTimeout(() => {
         inputRef.current?.focus();
@@ -71,7 +64,6 @@ export const Header: React.FC<InputFocusProps> = ({
         className={`todoapp__toggle-all ${allCompleted ? 'active' : ''}`}
         data-cy="ToggleAllButton"
       />
-
       {/* Add a todo on form submit */}
       <form
         onSubmit={e => {
@@ -87,10 +79,9 @@ export const Header: React.FC<InputFocusProps> = ({
           onChange={e => setTask(e.target.value)}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={isInputDisabled}
+          disabled={Boolean(tempTodo)}
         />
       </form>
-
       {/* Display error message if task title is empty */}
     </header>
   );

@@ -8,13 +8,11 @@ import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/Errors';
-
 enum FilterType {
   All = 'all',
   Active = 'active',
   Completed = 'completed',
 }
-
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,14 +21,12 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   useEffect(() => {
-    if (inputRef.current && !isInputDisabled) {
+    if (inputRef.current && !tempTodo) {
       inputRef.current.focus();
     }
-  }, [isInputDisabled, todos]);
-
+  }, [tempTodo, todos]);
   const loadTodos = async (userId: number) => {
     try {
       setLoading(true);
@@ -50,7 +46,6 @@ export const App: React.FC = () => {
       loadTodos(USER_ID_G);
     }
   }, []);
-
   useEffect(() => {
     if (!error) {
       return;
@@ -62,7 +57,6 @@ export const App: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [error]);
-
   if (!USER_ID_G) {
     return <UserWarning />;
   }
@@ -81,7 +75,6 @@ export const App: React.FC = () => {
         return true;
     }
   });
-
   const handleTodoStatusChange = (id: number) => {
     setTodos(prevTodos =>
       prevTodos.map(todo =>
@@ -91,16 +84,13 @@ export const App: React.FC = () => {
   };
 
   setTimeout(() => {
-    if (inputRef.current && !isInputDisabled) {
+    if (inputRef.current && !tempTodo) {
       inputRef.current.focus();
     }
   }, 50);
-
   const handleDelete = async (id: number) => {
     setDeletingTodoIds(prev => [...prev, id]);
-
     await new Promise(resolve => setTimeout(resolve, 0));
-
     try {
       await deleteTodo(id);
       setTodos(prev => prev.filter(todo => todo.id !== id));
@@ -117,11 +107,9 @@ export const App: React.FC = () => {
 
   const handleClearCompleted = async () => {
     const completed = todos.filter(todo => todo.completed);
-
     const results = await Promise.allSettled(
       completed.map(todo => deleteTodo(todo.id)),
     );
-
     const successfullyDeleted = completed.filter(
       (_, index) => results[index].status === 'fulfilled',
     );
@@ -129,7 +117,6 @@ export const App: React.FC = () => {
     setTodos(prev =>
       prev.filter(todo => !successfullyDeleted.some(td => td.id === todo.id)),
     );
-
     if (results.some(result => result.status === 'rejected')) {
       setError('Unable to delete a todo');
       setTimeout(() => {
@@ -141,7 +128,6 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <Header
           inputRef={inputRef}
@@ -150,8 +136,7 @@ export const App: React.FC = () => {
           setError={setError}
           todos={todos}
           setTempTodo={setTempTodo}
-          isInputDisabled={isInputDisabled}
-          setIsInputDisabled={setIsInputDisabled}
+          tempTodo={tempTodo}
         />
         <TodoList
           todos={filteredTodos}
@@ -161,7 +146,6 @@ export const App: React.FC = () => {
           loading={loading}
           deletingTodoIds={deletingTodoIds}
         />
-
         {todos.length > 0 && (
           <Footer
             todos={todos}
@@ -171,7 +155,6 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-
       <ErrorNotification error={error} onHideError={handleHideError} />
     </div>
   );
